@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "415754309148",
+    "project_id": "onlineshopping-c1a90",
+    "storage_bucket": "onlineshopping-c1a90.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:415754309148:android:6039a07209b2fe4d20d9d9",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_task"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqcImd4xeQhrZbxfTM_TTXYyT2RsOJ2oc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
