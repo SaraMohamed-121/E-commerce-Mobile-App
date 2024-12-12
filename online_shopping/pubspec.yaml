@@ -1,0 +1,57 @@
+name: online_shopping
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  firebase_core: ^3.8.1
+  firebase_database: ^11.2.0
+  firebase_auth: ^5.3.4
+  shared_preferences: ^2.3.3
+  fluttertoast: ^8.0.9
+  speech_to_text: ^7.0.0
+  barcode_scan2:  ^4.3.3 
+  camera: ^0.10.0+4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/electronics.jpg
+    - assets/accessories.jpg
+    - assets/clothing.jpg
+    - assets/books.jpg
+    - assets/toys.jpg
+    - assets/electronics1.jpg
+    - assets/electronics2.jpg
+    - assets/electronics3.jpg
+    - assets/electronics4.jpg
+    - assets/accessories1.jpg
+    - assets/accessories2.jpg
+    - assets/accessories3.jpg
+    - assets/accessories4.jpg
+    - assets/clothing1.jpg
+    - assets/clothing2.jpg
+    - assets/clothing3.jpg
+    - assets/clothing4.jpg
+    - assets/books1.jpg
+    - assets/books2.jpg
+    - assets/books3.jpg
+    - assets/books4.jpg
+    - assets/toys1.jpg
+    - assets/toys2.jpg
+    - assets/toys3.jpg
+    - assets/toys4.jpg
