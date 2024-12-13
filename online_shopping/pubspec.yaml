@@ -15,11 +15,15 @@ dependencies:
   firebase_core: ^3.8.1
   firebase_database: ^11.2.0
   firebase_auth: ^5.3.4
+  cloud_firestore: ^5.5.1
   shared_preferences: ^2.3.3
   fluttertoast: ^8.0.9
   speech_to_text: ^7.0.0
   barcode_scan2:  ^4.3.3 
   camera: ^0.10.0+4
+  simple_barcode_scanner: ^0.2.0
+  flutter_rating_bar: ^4.0.0  
+
 
 dev_dependencies:
   flutter_test:

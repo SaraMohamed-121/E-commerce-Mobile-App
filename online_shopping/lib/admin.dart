@@ -1,79 +1,107 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'category_page.dart';
 import 'product_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-final List<String> categories = [];
-final List<Product> products = [];
-
-class Admin extends StatefulWidget {
+// Future<void>main() async{
+//   WidgetsFlutterBinding.ensureInitialized();
+// await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
+//     runApp(const MyApp());
+// }
+class Admin extends StatelessWidget {
   const Admin({super.key});
 
   @override
-  State<Admin> createState() => AdminState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Admin Panel',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MainPage(),
+    );
+  }
 }
 
-class AdminState extends State<Admin> {
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Panel'),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (String value) async {
-              if (value == 'logout') {
-                await FirebaseAuth.instance.signOut();
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool('isLoggedIn', false);
-                await prefs.setBool('isAdmin', false);
-                Navigator.pushReplacementNamed(context, "/");
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
-                value: 'logout',
-                child: Text('Logout'),
-              ),
-            ],
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Admin Panel')),
       body: Column(
         children: [
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-                const Text('Categories:',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                if (categories.isEmpty)
-                  const Text('No categories added yet.',
-                      style: TextStyle(color: Colors.grey)),
-                ...categories.map((category) => ListTile(
-                      leading: const Icon(Icons.category),
-                      title: Text(category),
-                    )),
+                const Text('Categories:', style: TextStyle(fontWeight: FontWeight.bold)),
+                StreamBuilder<QuerySnapshot>(
+                  stream : FirebaseFirestore.instance.collection('Category').snapshots(),
+                  builder: (context,snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Text(
+                        'No categories added yet.',
+                        style: TextStyle(color: Colors.grey),
+                      );
+                    }
+                    final categoryDocs = snapshot.data!.docs;
+                    return Column(
+                      children: categoryDocs.map((doc) {
+                        final category = doc['name'] ?? 'unamed';
+                        return ListTile(
+                          leading: const Icon(Icons.category),
+                          title: Text(category),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
                 const Divider(),
-                const Text('Products:',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                if (products.isEmpty)
-                  const Text('No products added yet.',
-                      style: TextStyle(color: Colors.grey)),
-                ...products.map((product) => ListTile(
-                      leading: const Icon(Icons.shopping_cart),
-                      title: Text(product.name),
-                      subtitle: Text('Category: ${product.category}'),
-                      trailing: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('Price: \$${product.price.toStringAsFixed(2)}'),
-                          Text('Stock: ${product.stock}'),
-                        ],
-                      ),
-                    )),
+                const Text('Products:', style: TextStyle(fontWeight: FontWeight.bold)),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('Product').snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Text(
+                        'No products added yet.',
+                        style: TextStyle(color: Colors.grey),
+                      );
+                    }
+                    final productDocs = snapshot.data!.docs;
+                    return Column(
+                      children: productDocs.map((doc) {
+                        final product = Product.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+                        return ListTile(
+                          leading: const Icon(Icons.shopping_cart),
+                          title: Text(product.name),
+                          subtitle: Text('Category: ${product.category}'),
+                          trailing: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('Price: \$${product.price.toStringAsFixed(2)}'),
+                              Text('Stock: ${product.stock}'),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -85,7 +113,7 @@ class AdminState extends State<Admin> {
                 onPressed: () async {
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => CategoryPage()),
+                    MaterialPageRoute(builder: (context) => const CategoryPage()),
                   );
                   setState(() {});
                 },
@@ -95,7 +123,7 @@ class AdminState extends State<Admin> {
                 onPressed: () async {
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProductPage()),
+                    MaterialPageRoute(builder: (context) => const ProductPage()),
                   );
                   setState(() {});
                 },
@@ -108,3 +136,6 @@ class AdminState extends State<Admin> {
     );
   }
 }
+
+
+
