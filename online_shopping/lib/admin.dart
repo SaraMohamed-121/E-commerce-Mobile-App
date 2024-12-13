@@ -5,12 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'category_page.dart';
 import 'product_page.dart';
 
-// Future<void>main() async{
-//   WidgetsFlutterBinding.ensureInitialized();
-// await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
-//     runApp(const MyApp());
-// }
-
 class Admin extends StatefulWidget {
   const Admin({super.key});
 
