@@ -1,11 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'category_page.dart';
 import 'product_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-final List<String> categories = [];
-final List<Product> products = [];
+// Future<void>main() async{
+//   WidgetsFlutterBinding.ensureInitialized();
+// await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
+//     runApp(const MyApp());
+// }
 
 class Admin extends StatefulWidget {
   const Admin({super.key});
@@ -48,32 +52,72 @@ class AdminState extends State<Admin> {
               children: [
                 const Text('Categories:',
                     style: TextStyle(fontWeight: FontWeight.bold)),
-                if (categories.isEmpty)
-                  const Text('No categories added yet.',
-                      style: TextStyle(color: Colors.grey)),
-                ...categories.map((category) => ListTile(
-                      leading: const Icon(Icons.category),
-                      title: Text(category),
-                    )),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('Category')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Text(
+                        'No categories added yet.',
+                        style: TextStyle(color: Colors.grey),
+                      );
+                    }
+                    final categoryDocs = snapshot.data!.docs;
+                    return Column(
+                      children: categoryDocs.map((doc) {
+                        final category = doc['name'] ?? 'unamed';
+                        return ListTile(
+                          leading: const Icon(Icons.category),
+                          title: Text(category),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
                 const Divider(),
                 const Text('Products:',
                     style: TextStyle(fontWeight: FontWeight.bold)),
-                if (products.isEmpty)
-                  const Text('No products added yet.',
-                      style: TextStyle(color: Colors.grey)),
-                ...products.map((product) => ListTile(
-                      leading: const Icon(Icons.shopping_cart),
-                      title: Text(product.name),
-                      subtitle: Text('Category: ${product.category}'),
-                      trailing: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('Price: \$${product.price.toStringAsFixed(2)}'),
-                          Text('Stock: ${product.stock}'),
-                        ],
-                      ),
-                    )),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('Product')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Text(
+                        'No products added yet.',
+                        style: TextStyle(color: Colors.grey),
+                      );
+                    }
+                    final productDocs = snapshot.data!.docs;
+                    return Column(
+                      children: productDocs.map((doc) {
+                        final product = Product.fromMap(
+                            doc.data() as Map<String, dynamic>, doc.id);
+                        return ListTile(
+                          leading: const Icon(Icons.shopping_cart),
+                          title: Text(product.name),
+                          subtitle: Text('Category: ${product.category}'),
+                          trailing: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                  'Price: \$${product.price.toStringAsFixed(2)}'),
+                              Text('Stock: ${product.stock}'),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -85,7 +129,8 @@ class AdminState extends State<Admin> {
                 onPressed: () async {
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => CategoryPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const CategoryPage()),
                   );
                   setState(() {});
                 },
@@ -95,7 +140,8 @@ class AdminState extends State<Admin> {
                 onPressed: () async {
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProductPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const ProductPage()),
                   );
                   setState(() {});
                 },
