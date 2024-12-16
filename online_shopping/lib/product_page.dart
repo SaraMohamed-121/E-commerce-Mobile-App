@@ -129,7 +129,7 @@ class ProductPageState extends State<ProductPage> {
     }
   }
 
-  void deleteProduct(String id) async {
+  Future<void> deleteProduct(String id) async {
     try {
       await firestore.collection('Product').doc(id).delete();
     } catch (e) {
@@ -312,30 +312,35 @@ class ProductPageState extends State<ProductPage> {
                                   icon: const Icon(Icons.delete,
                                       color: Colors.red),
                                   onPressed: () async {
-                                    await showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: const Text('Confirm Delete'),
-                                          content: const Text(
-                                              'Are you sure you want to delete this product?'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(false),
-                                              child: const Text('Cancel'),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(true),
-                                              child: const Text('Delete'),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
+                                    bool confirmDelete = await showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title:
+                                                  const Text('Confirm Delete'),
+                                              content: const Text(
+                                                  'Are you sure you want to delete this product?'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(false),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(true),
+                                                  child: const Text('Delete'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ) ??
+                                        false;
+                                    if (confirmDelete) {
+                                      await deleteProduct(product.id);
+                                    }
                                   },
                                 ),
                                 IconButton(

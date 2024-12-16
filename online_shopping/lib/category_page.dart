@@ -38,7 +38,11 @@ class CategoryPageState extends State<CategoryPage> {
   }
 
   Future<void> deleteCategory(String id) async {
-    await firestore.collection('Category').doc(id).delete();
+    try {
+      await firestore.collection('Category').doc(id).delete();
+    } catch (e) {
+      showErrorDialog('Failed to delete product: $e');
+    }
   }
 
   void showCategoryDialog({String? id, String? initialName}) {
