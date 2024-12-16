@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'category_page.dart';
 import 'product_page.dart';
 
@@ -140,6 +140,25 @@ class AdminState extends State<Admin> {
                   setState(() {});
                 },
                 child: const Text('Manage Products'),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pushNamed(context, "/report");
+                  setState(() {});
+                },
+                child: const Text('Generate Report'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pushNamed(context, "/chart");
+                  setState(() {});
+                },
+                child: const Text('Generate Chart'),
               ),
             ],
           ),

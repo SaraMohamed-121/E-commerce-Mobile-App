@@ -5,6 +5,8 @@ import 'home.dart';
 import 'login.dart';
 import 'signup.dart';
 import 'admin.dart';
+import 'report.dart';
+import 'chart.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'E-Commerce',
       theme: ThemeData(primarySwatch: Colors.blue),
       initialRoute: '/',
@@ -27,6 +30,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const Login(),
         '/signup': (context) => const Signup(),
         '/admin': (context) => const Admin(),
+        '/report': (context) => const Report(),
+        '/chart': (context) => const Chart(),
       },
     );
   }

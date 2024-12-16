@@ -90,8 +90,9 @@ class SignupState extends State<Signup> {
                           email: email,
                           password: password,
                         );
-                        await db.child("users/$username").set({
-                          "email": email,
+                        email = email.split('@')[0];
+                        await db.child("users/$email").set({
+                          "username": username,
                           "birthdate": birthdate,
                         });
                         if (context.mounted) {

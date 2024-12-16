@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'product_page.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -371,6 +374,15 @@ class ProductScreen extends StatelessWidget {
     );
   }
 
+  void showToast(String msg) {
+    Fluttertoast.showToast(
+      msg: msg,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+    );
+  }
+
   void _showFeedbackDialog(BuildContext context, String productId) {
     final TextEditingController feedbackController = TextEditingController();
     double rating = 3.0;
@@ -506,6 +518,7 @@ class CartScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
+              Cart.storeInfo(); // Store the user's transaction to generate the report
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
@@ -548,7 +561,7 @@ class Cart {
     cartItems.remove(product);
   }
 
-  static void increaseQuantity(Map<String, dynamic> product) {
+  static Future<void> increaseQuantity(Map<String, dynamic> product) async {
     product['quantity'] += 1;
   }
 
@@ -564,6 +577,35 @@ class Cart {
       (total, item) =>
           (total + (item['price'] ?? 0) * (item['quantity'] ?? 0)).toInt(),
     );
+  }
+
+  static void storeInfo() async {
+    final db = FirebaseDatabase.instance.ref();
+    final prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString("username")!;
+    DateTime dateTime = DateTime.now();
+    String date = '${dateTime.year}-${dateTime.month}-${dateTime.day}';
+
+    ProductPageState p = ProductPageState();
+    for (var item in cartItems) {
+      String productName = item['name'];
+      int quantity = item['quantity'], newQuantity = 0;
+      int price = (item['price'] ?? 0) * (item['quantity'] ?? 0);
+
+      DataSnapshot snapshot =
+          await db.child('products/$productName/quantity').get();
+      if (snapshot.exists) {
+        newQuantity = int.parse(snapshot.value.toString()) + quantity;
+      } else {
+        newQuantity = quantity;
+      }
+
+      db.child('products').child(productName).set({
+        'quantity': newQuantity,
+      });
+
+      p.addTransaction(username, productName, quantity, price, date);
+    }
   }
 
   static void clearCart() {

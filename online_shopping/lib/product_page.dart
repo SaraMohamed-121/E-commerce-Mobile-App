@@ -8,6 +8,7 @@ class Product {
   String category;
   double price;
   int stock;
+  int quantity = 0;
 
   Product({
     required this.id,
@@ -32,10 +33,10 @@ class ProductPage extends StatefulWidget {
   const ProductPage({super.key});
 
   @override
-  _ProductPageState createState() => _ProductPageState();
+  State<ProductPage> createState() => ProductPageState();
 }
 
-class _ProductPageState extends State<ProductPage> {
+class ProductPageState extends State<ProductPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
@@ -62,19 +63,54 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
-  Future<void> addProduct(
-      String name, String category, double price, int stock) async {
+  Future<void> addProduct(String name, String category, double price, int stock,
+      int quantity) async {
     try {
       await firestore.collection('Product').add({
         'name': name,
         'category': category,
         'price': price,
         'stock': stock,
+        'qunatity': quantity,
         'image': 'https://cdn-icons-png.flaticon.com/128/18543/18543297.png',
       });
     } catch (e) {
       showErrorDialog('Failed to add product: $e');
     }
+  }
+
+  Future<void> addTransaction(String username, String productName, int quantity,
+      int price, String date) async {
+    try {
+      await firestore.collection('Transaction').doc().set({
+        'username': username,
+        'product': productName,
+        'quantity': quantity,
+        'totalPrice': price,
+        'purchaseDate': date
+      });
+    } catch (e) {
+      showErrorDialog('Failed to add transaction: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getProduct(String productName) async {
+    List<Map<String, dynamic>> list = [];
+    try {
+      QuerySnapshot querySnapshot = await firestore
+          .collection('Transaction')
+          .where('name', isEqualTo: productName)
+          .get();
+
+      setState(() {
+        list = querySnapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
+      });
+    } catch (e) {
+      print('Error fetching transactions: $e');
+    }
+    return list;
   }
 
   Future<void> updateProduct(Product product) async {
@@ -173,6 +209,7 @@ class _ProductPageState extends State<ProductPage> {
                     _selectedCategory!,
                     double.tryParse(_priceController.text) ?? 0.0,
                     int.tryParse(_stockController.text) ?? 0,
+                    0,
                   );
                 } else {
                   product.name = _nameController.text.trim();

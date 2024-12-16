@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -69,6 +70,16 @@ class LoginState extends State<Login> {
                         await prefs.setBool('isAdmin', true);
                         Navigator.pushReplacementNamed(context, "/admin");
                       } else {
+                        email = email.split('@')[0];
+                        DataSnapshot usernameRef = await FirebaseDatabase
+                            .instance
+                            .ref()
+                            .child("users/$email/username")
+                            .get();
+                        String username = usernameRef.value.toString();
+
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setString("username", username);
                         Navigator.pushReplacementNamed(context, "/home");
                       }
                     }
