@@ -57,7 +57,7 @@ class MainPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, "/signup");
+                Navigator.pushReplacementNamed(context, "/signup");
               },
               child: const Text('Signup'),
             ),
@@ -74,12 +74,12 @@ class MainPage extends StatelessWidget {
 
     if (isLoggedIn) {
       if (isAdmin) {
-        Navigator.pushNamed(context, "/admin");
+        Navigator.pushReplacementNamed(context, "/admin");
       } else {
-        Navigator.pushNamed(context, "/home");
+        Navigator.pushReplacementNamed(context, "/home");
       }
     } else {
-      Navigator.pushNamed(context, "/login");
+      Navigator.pushReplacementNamed(context, "/login");
     }
   }
 }

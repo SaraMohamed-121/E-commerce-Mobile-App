@@ -8,14 +8,14 @@ class Product {
   String category;
   double price;
   int stock;
-  int quantity = 0;
-
+  String image;
   Product({
     required this.id,
     required this.name,
     required this.category,
     required this.price,
     required this.stock,
+    required this.image,
   });
 
   factory Product.fromMap(Map<String, dynamic> data, String documentId) {
@@ -25,6 +25,7 @@ class Product {
       category: data['category'] ?? '',
       price: (data['price'] as num).toDouble(),
       stock: data['stock'] ?? 0,
+      image: data['image'] ?? '',
     );
   }
 }
@@ -40,6 +41,8 @@ class ProductPageState extends State<ProductPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
+  final TextEditingController _imageController = TextEditingController();
+
   String? _selectedCategory;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -64,15 +67,14 @@ class ProductPageState extends State<ProductPage> {
   }
 
   Future<void> addProduct(String name, String category, double price, int stock,
-      int quantity) async {
+      String image) async {
     try {
       await firestore.collection('Product').add({
         'name': name,
         'category': category,
         'price': price,
         'stock': stock,
-        'qunatity': quantity,
-        'image': 'https://cdn-icons-png.flaticon.com/128/18543/18543297.png',
+        'image': image,
       });
     } catch (e) {
       showErrorDialog('Failed to add product: $e');
@@ -120,7 +122,7 @@ class ProductPageState extends State<ProductPage> {
         'category': product.category,
         'price': product.price,
         'stock': product.stock,
-        'image': 'assets/product.avif',
+        'image': product.image,
       });
     } catch (e) {
       showErrorDialog('Failed to update product: $e');
@@ -141,11 +143,13 @@ class ProductPageState extends State<ProductPage> {
       _selectedCategory = product.category;
       _priceController.text = product.price.toString();
       _stockController.text = product.stock.toString();
+      _imageController.text = product.image;
     } else {
       _nameController.clear();
       _selectedCategory = null;
       _priceController.clear();
       _stockController.clear();
+      _imageController.clear();
     }
 
     showDialog(
@@ -186,6 +190,11 @@ class ProductPageState extends State<ProductPage> {
                       const InputDecoration(labelText: 'Stock Quantity'),
                   keyboardType: TextInputType.number,
                 ),
+                TextField(
+                  controller: _imageController,
+                  decoration: const InputDecoration(labelText: 'Product Image'),
+                  keyboardType: TextInputType.number,
+                ),
               ],
             ),
           ),
@@ -207,15 +216,16 @@ class ProductPageState extends State<ProductPage> {
                   await addProduct(
                     _nameController.text.trim(),
                     _selectedCategory!,
-                    double.tryParse(_priceController.text) ?? 0.0,
+                    double.tryParse(_priceController.text) ?? 0,
                     int.tryParse(_stockController.text) ?? 0,
-                    0,
+                    _imageController.text.trim(),
                   );
                 } else {
                   product.name = _nameController.text.trim();
                   product.category = _selectedCategory!;
-                  product.price = double.tryParse(_priceController.text) ?? 0.0;
+                  product.price = double.tryParse(_priceController.text) ?? 0;
                   product.stock = int.tryParse(_stockController.text) ?? 0;
+                  product.image = _imageController.text.trim();
                   await updateProduct(product);
                 }
 

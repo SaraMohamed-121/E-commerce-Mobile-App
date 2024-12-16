@@ -11,6 +11,8 @@ class CategoryPage extends StatefulWidget {
 class CategoryPageState extends State<CategoryPage> {
   final TextEditingController _categoryController = TextEditingController();
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final TextEditingController _categoryImageController =
+      TextEditingController();
 
   static Future<bool> checkIfNameExists(String? name) async {
     final querySnapshot = await FirebaseFirestore.instance
@@ -21,16 +23,17 @@ class CategoryPageState extends State<CategoryPage> {
     return querySnapshot.docs.isNotEmpty;
   }
 
-  Future<void> addCategory(String name) async {
+  Future<void> addCategory(String name, String image) async {
     await firestore.collection('Category').add({
       'name': name,
-      'image': 'assets/category.png',
+      'image': image,
     });
   }
 
-  Future<void> editCategory(String id, String newName) async {
+  Future<void> editCategory(String id, String newName, String image) async {
     await firestore.collection('Category').doc(id).update({
       'name': newName,
+      'image': image,
     });
   }
 
@@ -45,9 +48,20 @@ class CategoryPageState extends State<CategoryPage> {
       builder: (context) {
         return AlertDialog(
           title: Text(id == null ? 'Add Category' : 'Edit Category'),
-          content: TextField(
-            controller: _categoryController,
-            decoration: const InputDecoration(labelText: 'Category Name'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: _categoryController,
+                  decoration: const InputDecoration(labelText: 'Category Name'),
+                ),
+                TextField(
+                  controller: _categoryImageController,
+                  decoration:
+                      const InputDecoration(labelText: 'Category Image'),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -59,14 +73,15 @@ class CategoryPageState extends State<CategoryPage> {
             ElevatedButton(
               onPressed: () async {
                 final name = _categoryController.text.trim();
+                final image = _categoryImageController.text.trim();
                 if (name.isEmpty) {
                   showErrorDialog('Category name cannot be empty.');
                   return;
                 }
                 if (id == null) {
-                  await addCategory(name);
+                  await addCategory(name, image);
                 } else {
-                  await editCategory(id, name);
+                  await editCategory(id, name, image);
                 }
                 Navigator.of(context).pop();
               },

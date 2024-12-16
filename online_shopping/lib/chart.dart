@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -68,24 +66,6 @@ class Chart extends StatelessWidget {
                     color: Colors.blue,
                     width: 20,
                     borderRadius: BorderRadius.zero,
-                    // titlesData: FlTitlesData(
-                    //   bottomTitles: AxisTitles(
-                    //     sideTitles: SideTitles(
-                    //       showTitles: true,
-                    //       getTitlesWidget: (double value, TitleMeta meta) {
-                    //         final index = value.toInt();
-                    //         if (index >= 0 && index < snapshot.data!.length) {
-                    //           return Text(snapshot.data![index].name,
-                    //               style: const TextStyle(fontSize: 10));
-                    //         }
-                    //         return const Text('');
-                    //       },
-                    //     ),
-                    //   ),
-                    //   leftTitles: AxisTitles(
-                    //     sideTitles: SideTitles(showTitles: true),
-                    //   ),
-                    // ),
                   ),
                 ],
               );
@@ -112,17 +92,52 @@ class Chart extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
+
                   // Bar chart section
                   Center(
                     child: SizedBox(
-                      width: 350,
+                      width: 400,
                       height: 300,
                       child: BarChart(
                         BarChartData(
                           gridData: const FlGridData(show: true),
-                          titlesData: const FlTitlesData(show: true),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget:
+                                    (double value, TitleMeta meta) {
+                                  const style = TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  );
+
+                                  if (value.toInt() < snapshot.data!.length) {
+                                    final productName =
+                                        snapshot.data![value.toInt()].name;
+                                    return Text(productName, style: style);
+                                  } else {
+                                    return const Text('', style: style);
+                                  }
+                                },
+                                reservedSize: 32,
+                              ),
+                            ),
+                            leftTitles: const AxisTitles(
+                              sideTitles: const SideTitles(showTitles: true),
+                            ),
+                          ),
                           borderData: FlBorderData(show: true),
                           barGroups: barGroups,
+                          // groupsSpace: 140,
                         ),
                       ),
                     ),
@@ -131,7 +146,7 @@ class Chart extends StatelessWidget {
                   // Pie chart Section
                   Center(
                     child: SizedBox(
-                      height: 350,
+                      height: 283,
                       child: PieChart(
                         PieChartData(
                           sections: snapshot.data!.map(
@@ -140,7 +155,7 @@ class Chart extends StatelessWidget {
                                   (product.quantity / totalQuantity * 100)
                                       .toStringAsFixed(1);
                               return PieChartSectionData(
-                                title: '${product.name}',
+                                title: '${product.name}\n${percentage}%',
                                 value: product.quantity.toDouble(),
                                 color: Colors.primaries[
                                     snapshot.data!.indexOf(product) %

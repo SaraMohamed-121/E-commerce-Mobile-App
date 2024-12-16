@@ -476,7 +476,7 @@ class CartScreen extends StatelessWidget {
               itemBuilder: (ctx, index) {
                 final item = Cart.cartItems[index];
                 return ListTile(
-                  leading: Image.asset(item['image']!, width: 50, height: 50),
+                  // leading: Image.asset(item['image']!, width: 50, height: 50),
                   title: Text(item['name']),
                   subtitle: Text('\$${item['price']} x ${item['quantity']}'),
                   trailing: Row(
