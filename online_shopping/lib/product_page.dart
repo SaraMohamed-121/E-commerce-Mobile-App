@@ -6,7 +6,7 @@ class Product {
   final String id;
   String name;
   String category;
-  double price;
+  int price;
   int stock;
   String image;
   Product({
@@ -23,7 +23,7 @@ class Product {
       id: documentId,
       name: data['name'] ?? '',
       category: data['category'] ?? '',
-      price: (data['price'] as num).toDouble(),
+      price: (data['price'] as num).toInt(),
       stock: data['stock'] ?? 0,
       image: data['image'] ?? '',
     );
@@ -66,8 +66,8 @@ class ProductPageState extends State<ProductPage> {
     }
   }
 
-  Future<void> addProduct(String name, String category, double price, int stock,
-      String image) async {
+  Future<void> addProduct(
+      String name, String category, int price, int stock, String image) async {
     try {
       await firestore.collection('Product').add({
         'name': name,
@@ -193,7 +193,6 @@ class ProductPageState extends State<ProductPage> {
                 TextField(
                   controller: _imageController,
                   decoration: const InputDecoration(labelText: 'Product Image'),
-                  keyboardType: TextInputType.number,
                 ),
               ],
             ),
@@ -216,14 +215,14 @@ class ProductPageState extends State<ProductPage> {
                   await addProduct(
                     _nameController.text.trim(),
                     _selectedCategory!,
-                    double.tryParse(_priceController.text) ?? 0,
+                    int.tryParse(_priceController.text) ?? 0,
                     int.tryParse(_stockController.text) ?? 0,
                     _imageController.text.trim(),
                   );
                 } else {
                   product.name = _nameController.text.trim();
                   product.category = _selectedCategory!;
-                  product.price = double.tryParse(_priceController.text) ?? 0;
+                  product.price = int.tryParse(_priceController.text) ?? 0;
                   product.stock = int.tryParse(_stockController.text) ?? 0;
                   product.image = _imageController.text.trim();
                   await updateProduct(product);

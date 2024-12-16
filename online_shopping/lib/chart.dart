@@ -96,7 +96,7 @@ class Chart extends StatelessWidget {
                   // Bar chart section
                   Center(
                     child: SizedBox(
-                      width: 400,
+                      width: 350,
                       height: 300,
                       child: BarChart(
                         BarChartData(
@@ -137,7 +137,6 @@ class Chart extends StatelessWidget {
                           ),
                           borderData: FlBorderData(show: true),
                           barGroups: barGroups,
-                          // groupsSpace: 140,
                         ),
                       ),
                     ),
@@ -163,13 +162,13 @@ class Chart extends StatelessWidget {
                                 titleStyle: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Colors.black,
                                 ),
                               );
                             },
                           ).toList(),
-                          centerSpaceRadius: 90,
-                          sectionsSpace: 4,
+                          centerSpaceRadius: 80,
+                          sectionsSpace: 3,
                         ),
                       ),
                     ),

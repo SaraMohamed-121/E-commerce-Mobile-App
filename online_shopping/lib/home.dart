@@ -590,8 +590,7 @@ class Cart {
     for (var item in cartItems) {
       String productName = item['name'];
       int quantity = item['quantity'], newQuantity = 0;
-      int price = (item['price'] ?? 0) * (item['quantity'] ?? 0);
-
+      int price = (item['price'] ?? 0) * (item['quantity'] ?? 0) as int;
       DataSnapshot snapshot =
           await db.child('products/$productName/quantity').get();
       if (snapshot.exists) {
