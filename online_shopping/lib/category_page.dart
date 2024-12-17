@@ -38,10 +38,16 @@ class CategoryPageState extends State<CategoryPage> {
   }
 
   Future<void> deleteCategory(String id) async {
-    try {
-      await firestore.collection('Category').doc(id).delete();
-    } catch (e) {
-      showErrorDialog('Failed to delete product: $e');
+    final categorySnapshot =
+        await firestore.collection('Category').doc(id).get();
+    final categoryImage = categorySnapshot['name'];
+    await firestore.collection('Category').doc(id).delete();
+    final productSnapshot = await firestore
+        .collection('Product')
+        .where('category', isEqualTo: categoryImage)
+        .get();
+    for (var doc in productSnapshot.docs) {
+      await firestore.collection('Product').doc(doc.id).delete();
     }
   }
 

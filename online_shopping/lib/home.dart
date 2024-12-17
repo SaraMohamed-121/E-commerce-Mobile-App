@@ -344,17 +344,26 @@ class ProductScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.add_shopping_cart),
-                          onPressed: () {
-                            Cart.addToCart(categoryProducts[index]);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    '${categoryProducts[index]['name']} added to cart!'),
-                              ),
-                            );
-                          },
-                        ),
+                            icon: const Icon(Icons.add_shopping_cart),
+                            onPressed: () {
+                              if (categoryProducts[index]['stock'] != null &&
+                                  categoryProducts[index]['stock'] != 0) {
+                                Cart.addToCart(categoryProducts[index]);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        '${categoryProducts[index]['name']} added to cart!'),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('This product is out of stock.'),
+                                  ),
+                                );
+                              }
+                            }),
                         IconButton(
                           icon: const Icon(Icons.feedback),
                           onPressed: () {

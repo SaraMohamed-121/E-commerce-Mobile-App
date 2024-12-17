@@ -206,7 +206,8 @@ class ProductPageState extends State<ProductPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (_selectedCategory == null) {
+                if (_selectedCategory == null ||
+                    _nameController.text.trim().isEmpty) {
                   showErrorDialog('Please select a category.');
                   return;
                 }
@@ -262,20 +263,24 @@ class ProductPageState extends State<ProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Manage Products')),
-      body: FutureBuilder<List<String>>(
-        future: fetchCategories(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: firestore.collection('Category').snapshots(),
         builder: (context, categorySnapshot) {
           if (categorySnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (categorySnapshot.hasError) {
             return Center(child: Text('Error: ${categorySnapshot.error}'));
           } else if (!categorySnapshot.hasData ||
-              categorySnapshot.data!.isEmpty) {
+              categorySnapshot.data!.docs.isEmpty) {
             return const Center(child: Text('No categories found.'));
           } else {
-            final categories = categorySnapshot.data!;
-            return FutureBuilder<List<Product>>(
-              future: fetchProducts(),
+            final categoryNames = categorySnapshot.data!.docs
+                .map((doc) => doc['name'] as String? ?? '')
+                .where((name) => name.isNotEmpty)
+                .toList();
+
+            return StreamBuilder<QuerySnapshot>(
+              stream: firestore.collection('Product').snapshots(),
               builder: (context, productSnapshot) {
                 if (productSnapshot.connectionState ==
                     ConnectionState.waiting) {
@@ -283,16 +288,21 @@ class ProductPageState extends State<ProductPage> {
                 } else if (productSnapshot.hasError) {
                   return Center(child: Text('Error: ${productSnapshot.error}'));
                 } else if (!productSnapshot.hasData ||
-                    productSnapshot.data!.isEmpty) {
+                    productSnapshot.data!.docs.isEmpty) {
                   return const Center(child: Text('No products found.'));
                 } else {
-                  final products = productSnapshot.data!;
+                  final products = productSnapshot.data!.docs
+                      .map((doc) => Product.fromMap(
+                          doc.data() as Map<String, dynamic>, doc.id))
+                      .toList();
+
                   return ListView(
                     children: [
                       ListTile(
                         title: const Text('Add New Product'),
                         trailing: const Icon(Icons.add),
-                        onTap: () => showProductDialog(categories: categories),
+                        onTap: () =>
+                            showProductDialog(categories: categoryNames),
                       ),
                       const Divider(),
                       ...products.map((product) => ListTile(
@@ -306,54 +316,53 @@ class ProductPageState extends State<ProductPage> {
                                   icon: const Icon(Icons.edit,
                                       color: Colors.blue),
                                   onPressed: () => showProductDialog(
-                                      product: product, categories: categories),
+                                      product: product,
+                                      categories: categoryNames),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete,
                                       color: Colors.red),
                                   onPressed: () async {
-                                    bool confirmDelete = await showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              title:
-                                                  const Text('Confirm Delete'),
-                                              content: const Text(
-                                                  'Are you sure you want to delete this product?'),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(false),
-                                                  child: const Text('Cancel'),
-                                                ),
-                                                ElevatedButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(true),
-                                                  child: const Text('Delete'),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        ) ??
-                                        false;
-                                    if (confirmDelete) {
+                                    final confirm = await showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text('Confirm Delete'),
+                                          content: const Text(
+                                              'Are you sure you want to delete this product?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(true),
+                                              child: const Text('Delete'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+
+                                    if (confirm == true) {
                                       await deleteProduct(product.id);
                                     }
                                   },
                                 ),
                                 IconButton(
-                                  icon: const Icon(
-                                    Icons.stars,
-                                    color: Colors.yellow,
-                                  ),
+                                  icon: const Icon(Icons.stars,
+                                      color: Colors.yellow),
                                   onPressed: () async {
                                     await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => RatingPage(
-                                              productId: product.id)),
+                                        builder: (context) =>
+                                            RatingPage(productId: product.id),
+                                      ),
                                     );
                                     setState(() {});
                                   },
