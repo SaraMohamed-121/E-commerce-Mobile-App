@@ -1,6 +1,6 @@
 # E-commerce-Mobile-App: Online Shopping 🛒  
 
-## 📋 Features  
+## Features  
 
 ### User Features  
 1. **Authentication**:  
@@ -20,9 +20,9 @@
 
 ### Admin Functionalities  
 1. **Product Management**:  
-   - Add, edit, or delete products/categories ➕✏️❌.  
-   - Manage product stock quantities 📦.  
+   - Add, edit, or delete products/categories.  
+   - Manage product stock quantities.  
 2. **Reports**:  
-   - Generate transaction reports 📄 for specific dates.  
-   - View customer feedback & ratings 💬.  
-   - Analyze sales data with charts 📊 for best-selling products.  
+   - Generate transaction reports for specific dates.  
+   - View customer feedback & ratings.  
+   - Analyze sales data with charts for best-selling products.  
